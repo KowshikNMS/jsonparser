@@ -1,0 +1,14 @@
+[
+  {
+    "empName": "Kowshik",
+    "city": "Chennai",
+    "dept": "IT",
+    "mobileNum": 9876543210
+  },
+  {
+    "empName": "Senthil",
+    "city": "Bengaluru",
+    "dept": "HR",
+    "mobileNum": 9123456780
+  }
+]

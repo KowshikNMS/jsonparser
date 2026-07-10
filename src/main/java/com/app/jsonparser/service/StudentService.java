@@ -1,11 +1,11 @@
 package com.app.jsonparser.service;
 
-import com.app.jsonparser.dto.StudentInfoDTO;
-import com.app.jsonparser.entity.StudentInfo;
+import com.app.jsonparser.dto.StudentDTO;
+import com.app.jsonparser.dto.SubjectDTO;
+import com.app.jsonparser.entity.Student;
+import com.app.jsonparser.entity.Subject;
 import com.app.jsonparser.repo.StudentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.core.type.TypeReference;
@@ -21,19 +21,31 @@ public class StudentService {
     @Autowired
     private StudentRepo studentRepo;
 
-    public void addStudentInfo(StudentInfoDTO studentInfoDTO) {
-        StudentInfo studentInfo = new StudentInfo();
+    public void addStudentInfo(StudentDTO studentDTO) {
+        Student student = new Student();
 
-        studentInfo.setEmpName(studentInfoDTO.empName);
-        studentInfo.setDept(studentInfoDTO.dept);
-        studentInfo.setCity(studentInfoDTO.city);
-        studentInfo.setMobileNum(studentInfoDTO.mobileNum);
+        student.setEmpName(studentDTO.empName);
+        student.setDept(studentDTO.dept);
+        student.setCity(studentDTO.city);
+        student.setMobileNum(studentDTO.mobileNum);
 
-        studentRepo.save(studentInfo);
+        List<Subject> subjects = new ArrayList<>();
+        for (SubjectDTO subjectDTO : studentDTO.subjectDTOs) {
+            Subject subject = new Subject();
+            subject.setSubjectName(subjectDTO.subjectName);
+            subject.setMarks(subjectDTO.marks);
+            subject.setStudent(student);
+
+            subjects.add(subject);
+        }
+
+        student.getSubjects().addAll(subjects);
+
+        studentRepo.save(student);
     }
 
-    public StudentInfoDTO getStudentInfoById(long studentId) {
-        StudentInfo studentInfo = studentRepo.findById(studentId).orElse(null);
+    public StudentDTO getStudentInfoById(long studentId) {
+        Student studentInfo = studentRepo.findById(studentId).orElse(null);
 
         if (studentInfo == null) {
             System.out.println("No student info found for id : " + studentId);
@@ -43,20 +55,20 @@ public class StudentService {
         return convertToDTO(studentInfo);
     }
 
-    public List<StudentInfoDTO> getAllStudents() {
-        List<StudentInfoDTO> studentInfoDTOS = new ArrayList<>();
+    public List<StudentDTO> getAllStudents() {
+        List<StudentDTO> studentInfoDTOS = new ArrayList<>();
 
-        List<StudentInfo> studentInfoList = studentRepo.findAll();
+        List<Student> studentInfoList = studentRepo.findAll();
 
-        for (StudentInfo studentInfo : studentInfoList) {
+        for (Student studentInfo : studentInfoList) {
             studentInfoDTOS.add(convertToDTO(studentInfo));
         }
 
         return studentInfoDTOS;
     }
 
-    public StudentInfoDTO convertToDTO(StudentInfo student) {
-        StudentInfoDTO studentInfoDTO = new StudentInfoDTO();
+    public StudentDTO convertToDTO(Student student) {
+        StudentDTO studentInfoDTO = new StudentDTO();
 
         studentInfoDTO.id = student.getId();
         studentInfoDTO.empName = student.getEmpName();
@@ -67,19 +79,19 @@ public class StudentService {
         return studentInfoDTO;
     }
 
-    public List<StudentInfo> saveStudentsFromJsonFile(MultipartFile file) {
-        List<StudentInfo> students = getStudentsFromJsonFile(file);
+    public List<Student> saveStudentsFromJsonFile(MultipartFile file) {
+        List<Student> students = getStudentsFromJsonFile(file);
         return studentRepo.saveAll(students);
     }
 
-    private List<StudentInfo> getStudentsFromJsonFile(MultipartFile file) {
+    private List<Student> getStudentsFromJsonFile(MultipartFile file) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
 
             return mapper.readValue(
                     file.getInputStream(),
-                    new TypeReference<List<StudentInfo>>() {}
+                    new TypeReference<List<Student>>() {}
             );
 
 
@@ -89,14 +101,14 @@ public class StudentService {
         }
     }
 
-    public List<StudentInfo> addStudentsFromCsv(MultipartFile multipartFile) {
-        List<StudentInfo> studentInfoList = getStudentDataFromCsvFile(multipartFile);
+    public List<Student> addStudentsFromCsv(MultipartFile multipartFile) {
+        List<Student> studentInfoList = getStudentDataFromCsvFile(multipartFile);
         return studentRepo.saveAll(studentInfoList);
     }
 
-    private List<StudentInfo> getStudentDataFromCsvFile(MultipartFile multipartFile) {
+    private List<Student> getStudentDataFromCsvFile(MultipartFile multipartFile) {
 
-        List<StudentInfo> studentInfoList = new ArrayList<>();
+        List<Student> studentInfoList = new ArrayList<>();
 
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()))) {
 
@@ -104,7 +116,7 @@ public class StudentService {
             while ((line = bufferedReader.readLine()) != null) {
                 String[] words = line.split(",");
 
-                StudentInfo studentInfo = new StudentInfo(words[0], words[1], words[2], Long.parseLong(words[3]));
+                Student studentInfo = new Student(words[0], words[1], words[2], Long.parseLong(words[3]));
                 studentInfoList.add(studentInfo);
             }
 
@@ -113,6 +125,23 @@ public class StudentService {
         }
 
         return studentInfoList;
+    }
+
+    public void addSubjectForStudent(long studentId, SubjectDTO subjectDTO) {
+        Student student = studentRepo.findById(studentId).orElse(null);
+
+        if (student == null) {
+            throw new RuntimeException("No student exists for student id : " + studentId);
+        }
+
+        Subject subject = new Subject();
+        subject.setSubjectName(subjectDTO.subjectName);
+        subject.setMarks(subjectDTO.marks);
+        subject.setStudent(student);
+
+        student.getSubjects().add(subject);
+
+        studentRepo.save(student);
     }
 
 }

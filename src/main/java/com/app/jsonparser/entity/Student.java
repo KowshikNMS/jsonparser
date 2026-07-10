@@ -2,11 +2,12 @@ package com.app.jsonparser.entity;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "student_info")
-public class StudentInfo {
+public class Student {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,10 +17,13 @@ public class StudentInfo {
     private String dept;
     private long mobileNum;
 
-    public StudentInfo() {
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Subject> subjects = new ArrayList<>();
+
+    public Student() {
     }
 
-    public StudentInfo(String empName, String city, String dept, long mobileNum) {
+    public Student(String empName, String city, String dept, long mobileNum) {
         this.empName = empName;
         this.city = city;
         this.dept = dept;
@@ -66,14 +70,11 @@ public class StudentInfo {
         this.mobileNum = mobileNum;
     }
 
-    @Override
-    public String toString() {
-        return "StudentInfo{" +
-                "id=" + id +
-                ", empName='" + empName + '\'' +
-                ", city='" + city + '\'' +
-                ", dept='" + dept + '\'' +
-                ", mobileNum=" + mobileNum +
-                '}';
+    public List<Subject> getSubjects() {
+        return subjects;
+    }
+
+    public void setSubjects(List<Subject> subjects) {
+        this.subjects = subjects;
     }
 }

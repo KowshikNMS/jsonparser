@@ -17,7 +17,7 @@ public class Student {
     private String dept;
     private long mobileNum;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Subject> subjects = new ArrayList<>();
 
     public Student() {

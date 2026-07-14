@@ -2,6 +2,7 @@ package com.app.jsonparser.controller;
 
 import com.app.jsonparser.dto.StudentDTO;
 import com.app.jsonparser.dto.SubjectDTO;
+import com.app.jsonparser.dto.SubjectRemoveReqDTO;
 import com.app.jsonparser.entity.Student;
 import com.app.jsonparser.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,11 @@ public class StudentRestController {
     @PostMapping("/student/subject/add/{studentId}")
     public void addNewSubjectForStudent(@PathVariable long studentId, @RequestBody SubjectDTO subjectDTO) {
         studentService.addSubjectForStudent(studentId, subjectDTO);
+    }
+
+    @PostMapping("/subject/remove")
+    public void removeSubject(@RequestBody SubjectRemoveReqDTO dto) {
+        studentService.removeSubject(dto);
     }
 
 }

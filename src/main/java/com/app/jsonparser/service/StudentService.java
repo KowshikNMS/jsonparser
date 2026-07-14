@@ -2,9 +2,11 @@ package com.app.jsonparser.service;
 
 import com.app.jsonparser.dto.StudentDTO;
 import com.app.jsonparser.dto.SubjectDTO;
+import com.app.jsonparser.dto.SubjectRemoveReqDTO;
 import com.app.jsonparser.entity.Student;
 import com.app.jsonparser.entity.Subject;
 import com.app.jsonparser.repo.StudentRepo;
+import com.app.jsonparser.repo.SubjectRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +22,9 @@ public class StudentService {
 
     @Autowired
     private StudentRepo studentRepo;
+
+    @Autowired
+    private SubjectRepo subjectRepo;
 
     public void addStudentInfo(StudentDTO studentDTO) {
         Student student = new Student();
@@ -180,6 +185,34 @@ public class StudentService {
         subject.setStudent(student);
 
         student.getSubjects().add(subject);
+
+        studentRepo.save(student);
+    }
+
+    public void removeSubject(SubjectRemoveReqDTO dto) {
+        System.out.println("Remove subject called");
+        Student student = studentRepo.findById(dto.studentId)
+                .orElse(null);
+
+        if (student == null) {
+            System.out.println("No student available for id : " + dto.studentId);
+            return;
+        }
+
+        Subject subjectToRemove = null;
+        for (Subject subject : student.getSubjects()) {
+            if (subject.getId() == dto.subjectId) {
+                subjectToRemove = subject;
+                break;
+            }
+        }
+
+        if (subjectToRemove == null) {
+            System.out.println("No subject available for student - " + student.getName() + " with id : " + dto.subjectId);
+            return;
+        }
+
+        student.getSubjects().remove(subjectToRemove);
 
         studentRepo.save(student);
     }

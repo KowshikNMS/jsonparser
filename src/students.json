@@ -1,14 +1,26 @@
 [
   {
-    "empName": "Kowshik",
+    "name": "Murugan",
     "city": "Chennai",
     "dept": "IT",
-    "mobileNum": 9876543210
+    "mobileNum": 9876543210,
+    "subjectDTOs" : [
+      {
+        "subjectName" : "History",
+        "marks" : 80
+      }
+    ]
   },
   {
-    "empName": "Senthil",
+    "name": "Senthil",
     "city": "Bengaluru",
     "dept": "HR",
-    "mobileNum": 9123456780
+    "mobileNum": 9123456780,
+    "subjectDTOs" : [
+      {
+        "subjectName" : "Geography",
+        "marks" : 80
+      }
+    ]
   }
 ]

@@ -12,7 +12,7 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String empName;
+    private String name;
     private String city;
     private String dept;
     private long mobileNum;
@@ -23,8 +23,8 @@ public class Student {
     public Student() {
     }
 
-    public Student(String empName, String city, String dept, long mobileNum) {
-        this.empName = empName;
+    public Student(String name, String city, String dept, long mobileNum) {
+        this.name = name;
         this.city = city;
         this.dept = dept;
         this.mobileNum = mobileNum;
@@ -38,12 +38,12 @@ public class Student {
         this.id = id;
     }
 
-    public String getEmpName() {
-        return empName;
+    public String getName() {
+        return name;
     }
 
-    public void setEmpName(String empName) {
-        this.empName = empName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getCity() {

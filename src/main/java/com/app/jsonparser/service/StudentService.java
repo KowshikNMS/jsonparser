@@ -24,7 +24,7 @@ public class StudentService {
     public void addStudentInfo(StudentDTO studentDTO) {
         Student student = new Student();
 
-        student.setEmpName(studentDTO.empName);
+        student.setName(studentDTO.name);
         student.setDept(studentDTO.dept);
         student.setCity(studentDTO.city);
         student.setMobileNum(studentDTO.mobileNum);
@@ -71,27 +71,67 @@ public class StudentService {
         StudentDTO studentInfoDTO = new StudentDTO();
 
         studentInfoDTO.id = student.getId();
-        studentInfoDTO.empName = student.getEmpName();
+        studentInfoDTO.name = student.getName();
         studentInfoDTO.dept = student.getDept();
         studentInfoDTO.city = student.getCity();
         studentInfoDTO.mobileNum = student.getMobileNum();
+
+        studentInfoDTO.subjectDTOs = new ArrayList<>();
+
+        for (Subject subject : student.getSubjects()) {
+            SubjectDTO subjectDTO = new SubjectDTO();
+
+            subjectDTO.id = subject.getId();
+            subjectDTO.subjectName = subject.getSubjectName();
+            subjectDTO.marks = subject.getMarks();
+
+            studentInfoDTO.subjectDTOs.add(subjectDTO);
+        }
 
         return studentInfoDTO;
     }
 
     public List<Student> saveStudentsFromJsonFile(MultipartFile file) {
-        List<Student> students = getStudentsFromJsonFile(file);
+        List<StudentDTO> studentDTOs = getStudentsFromJsonFile(file);
+        return uploadStudents(studentDTOs);
+    }
+
+    private List<Student> uploadStudents(List<StudentDTO> studentDTOs) {
+
+        List<Student> students = new ArrayList<>();
+
+        for (StudentDTO studentDTO : studentDTOs) {
+            Student student = new Student();
+
+            student.setName(studentDTO.name);
+            student.setDept(studentDTO.dept);
+            student.setCity(studentDTO.city);
+            student.setMobileNum(studentDTO.mobileNum);
+
+            for (SubjectDTO subjectDTO : studentDTO.subjectDTOs) {
+                Subject subject = new Subject();
+
+                subject.setSubjectName(subjectDTO.subjectName);
+                subject.setMarks(subjectDTO.marks);
+                subject.setStudent(student);
+
+                student.getSubjects().add(subject);
+            }
+
+            students.add(student);
+        }
+
         return studentRepo.saveAll(students);
     }
 
-    private List<Student> getStudentsFromJsonFile(MultipartFile file) {
+    private List<StudentDTO> getStudentsFromJsonFile(MultipartFile file) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
 
             return mapper.readValue(
                     file.getInputStream(),
-                    new TypeReference<List<Student>>() {}
+                    new TypeReference<List<StudentDTO>>() {}
             );
 
 
